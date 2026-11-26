@@ -1,0 +1,36 @@
+== 1. DATA QUALITY ==
+users: 32,000 | duplicate user_ids: 0 | missing values: 0
+exposure window: 2026-09-01 to 2026-09-14
+
+== 2. SAMPLE RATIO MISMATCH (expected 50/50) ==
+control 15,862 | treatment 16,138 | chi-square p = 0.123 -> OK, no SRM (threshold p < 0.001)
+
+== 3. POWER PLAN ==
+to detect +1.00 pp on a 11% baseline (alpha 0.05, power 80%): 15,973 users per arm
+actual users per arm: 15,862 / 16,138 -> smallest detectable lift at 80% power: +1.00 pp
+
+== 4. PRIMARY METRIC: CONVERSION ==
+control 11.05% | treatment 12.07%
+lift +1.03 pp (+9.3% relative) | 95% CI [+0.33 pp, +1.73 pp] | z = 2.87 | p = 0.0041
+
+== 5. SECONDARY METRIC: REVENUE PER USER (zeros included) ==
+control EUR 3.08 | treatment EUR 3.39 | difference EUR +0.31 (+9.9%)
+Welch t-test p = 0.0119 | bootstrap 95% CI [EUR +0.07, EUR +0.54] (2,000 resamples)
+order value among buyers: control EUR 27.88 | treatment EUR 28.05 | Welch p = 0.779 (descriptive only: conditioning on buying can bias a comparison)
+
+== 6. GUARDRAIL: REFUND RATE AMONG BUYERS ==
+control 4.85% | treatment 4.41% | difference -0.44 pp | 95% CI [-1.79 pp, +0.92 pp] | p = 0.527
+allowed worsening: +1.00 pp -> upper CI bound +0.92 pp is BELOW the margin: guardrail passed
+
+== 7. SEGMENTS BY DEVICE (Bonferroni, 2 segments) ==
+mobile   n = 9,849/10,098 | control 8.97% | treatment 10.81% | lift +1.85 pp | 95% CI [+1.02 pp, +2.68 pp] | p = < 0.0001 (Bonferroni-adjusted < 0.0001)
+desktop  n = 6,013/6,040 | control 14.45% | treatment 14.17% | lift -0.28 pp | 95% CI [-1.53 pp, +0.97 pp] | p = 0.6609 (Bonferroni-adjusted 1.0000)
+difference in lift mobile vs desktop: +2.13 pp | z = 2.78 | p = 0.0054
+
+== 8. STABILITY OVER TIME (novelty check) ==
+week 1: lift +1.19 pp | 95% CI [+0.20 pp, +2.17 pp]
+week 2: lift +0.86 pp | 95% CI [-0.13 pp, +1.86 pp]
+
+== 9. DECISION ==
+primary metric significant and positive: True | guardrail passed: True
+-> meets the pre-registered ship criteria (check the segment results before rollout)
